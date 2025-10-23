@@ -5,13 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meus Favoritos Shopee</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .product-toggle { cursor: pointer; user-select: none; }
-609        .product-toggle::before { content: 'Right Arrow '; font-size: 0.8em; }
-        .product-toggle.expanded::before { content: 'Down Arrow '; }
-        .sub-row { display: none; }
-        .product-toggle.expanded + .sub-row { display: table-row; }
-    </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto p-4 md:p-8">
@@ -39,7 +32,6 @@
         </div>
     </div>
 
-    <!-- MANAGER EMBUTIDO NO HTML -->
     <script>
         const CHAVE_CARRINHO = "shopee_cart_snapshot";
         const CHAVE_PRODUTOS = "shopee_favoritos";
@@ -138,7 +130,7 @@
             salvarProdutos(lista);
             renderizar();
 
-            // Feedback visual
+            // Feedback
             const h1 = document.querySelector('h1');
             if (h1 && (novos > 0 || atualizados > 0)) {
                 const orig = h1.textContent;
@@ -151,7 +143,12 @@
             localStorage.removeItem(CHAVE_CARRINHO);
         }
 
-        // Escuta mudanças no localStorage (mesmo em outras abas)
+        // POLLING: Verifica a cada 2 segundos
+        setInterval(() => {
+            processarSnapshot();
+        }, 2000);
+
+        // Escuta storage (para outras abas)
         window.addEventListener('storage', (e) => {
             if (e.key === CHAVE_CARRINHO) {
                 console.log("Snapshot recebido via storage event!");
@@ -159,12 +156,12 @@
             }
         });
 
-        // Ao carregar a página
+        // Inicialização
         window.addEventListener('load', () => {
             document.getElementById('lista-produtos').addEventListener('click', excluir);
             renderizar();
-            processarSnapshot(); // Processa se já tiver dados
-            console.log("Manager carregado. Escutando localStorage...");
+            processarSnapshot(); // Primeira verificação
+            console.log("Manager v6.1 carregado. Polling ativo a cada 2s...");
         });
     </script>
 </body>
