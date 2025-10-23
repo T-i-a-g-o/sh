@@ -6,13 +6,10 @@
     <title>Meus Favoritos Shopee</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Estilo para a seta de expansão */
         .product-toggle { cursor: pointer; user-select: none; }
         .product-toggle::before { content: '► '; font-size: 0.8em; }
         .product-toggle.expanded::before { content: '▼ '; }
-        /* Esconde sub-linhas por padrão */
         .sub-row { display: none; }
-        /* Mostra sub-linhas quando o pai está expandido */
         .product-toggle.expanded + .sub-row,
         .product-toggle.expanded + .sub-row + .sub-row {
             display: table-row;
@@ -24,15 +21,12 @@
         <header class="flex flex-col md:flex-row justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Meus Favoritos Shopee</h1>
             <div class="flex gap-2 mt-4 md:mt-0">
-                <button id="btn-atualizar-precos" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition-all flex items-center gap-2">
+                <button id="btn-sync-carrinho" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition-all flex items-center gap-2">
                     <svg id="spinner" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Atualizar Preços (do Carrinho)
-                </button>
-                <button id="btn-abrir-modal" class="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition-all">
-                    Cadastrar Produto
+                    Sincronizar com Carrinho
                 </button>
             </div>
         </header>
@@ -54,44 +48,5 @@
             </table>
         </div>
     </div>
-
-    <div id="modal-cadastro" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden">
-        <div class="relative mx-auto p-5 border w-full max-w-lg shadow-lg rounded-md bg-white">
-            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Cadastrar Novo Produto</h3>
-            <form id="form-cadastro">
-                <div class="mb-4">
-                    <label for="nome-produto" class="block text-sm font-medium text-gray-700">Nome do Produto</label>
-                    <input type="text" id="nome-produto" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
-                </div>
-                <div class="mb-4">
-                    <label for="url-produto" class="block text-sm font-medium text-gray-700">URL do Produto (Shopee)</label>
-                    <input type="url" id="url-produto" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
-                </div>
-                <div class="mb-4">
-                    <label for="preco-produto" class="block text-sm font-medium text-gray-700">Preço Atual (Ex: 26,99)</label>
-                    <input type="text" id="preco-produto" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Apenas números e vírgula" required>
-                </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" id="btn-cancelar-modal" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">Cancelar</button>
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Salvar Produto</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('modal-cadastro');
-            const btnAbrir = document.getElementById('btn-abrir-modal');
-            const btnCancelar = document.getElementById('btn-cancelar-modal');
-
-            btnAbrir.addEventListener('click', () => modal.classList.remove('hidden'));
-            btnCancelar.addEventListener('click', () => modal.classList.add('hidden'));
-            
-            document.getElementById('form-cadastro').addEventListener('submit', () => {
-                modal.classList.add('hidden');
-            });
-        });
-    </script>
-</body>
+    </body>
 </html>
