@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>Chart Icon</text></svg>">
     <title>Meus Favoritos Shopee</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -32,6 +33,9 @@
         </div>
 
         <div class="mt-6 text-center">
+            <button id="btn-limpar" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 ml-2">
+                Limpar Tudo
+            </button>
             <button id="btn-atualizar" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                 Atualizar Manualmente
             </button>
@@ -39,6 +43,14 @@
     </div>
 
     <script>
+
+        document.getElementById('btn-limpar').addEventListener('click', () => {
+            if (confirm("Tem certeza que quer limpar todos os produtos?")) {
+                localStorage.removeItem(CHAVE_PRODUTOS);
+                renderizar();
+            }
+        });
+        
         const CHAVE_PRODUTOS = "shopee_favoritos";
 
         function getProdutos() {
