@@ -13,12 +13,6 @@
             
         </header>
 
-        <div class="mb-4">
-            <button id="btn-atualizar" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold">
-                Atualizar Preços do Carrinho
-            </button>
-        </div>
-
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -32,16 +26,20 @@
                     </tr>
                 </thead>
                 <tbody id="lista-produtos" class="bg-white divide-y divide-gray-200">
-                    <tr><td colspan="6" class="text-center py-8 text-gray-500">Clique em "Atualizar Preços" para começar.</td></tr>
+                    <tr><td colspan="6" class="text-center py-8 text-gray-500">Carregando...</td></tr>
                 </tbody>
             </table>
+        </div>
+
+        <div class="mt-6 text-center">
+            <button id="btn-atualizar" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Atualizar Manualmente
+            </button>
         </div>
     </div>
 
     <script>
         const CHAVE_PRODUTOS = "shopee_favoritos";
-        const CHAVE_ATUALIZACAO = "shopee_update_request";
-        const CHAVE_DADOS = "shopee_cart_data";
 
         function getProdutos() {
             const data = localStorage.getItem(CHAVE_PRODUTOS);
@@ -52,13 +50,17 @@
             localStorage.setItem(CHAVE_PRODUTOS, JSON.stringify(lista));
         }
 
+        function formatarPreco(v) {
+            return `R$ ${v.toFixed(2).replace('.', ',')}`;
+        }
+
         function renderizar() {
             const lista = getProdutos();
             const tbody = document.getElementById('lista-produtos');
             tbody.innerHTML = '';
 
             if (lista.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">Nenhum produto salvo ainda.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">Nenhum produto salvo.<br><small>Salve o carrinho na Shopee para começar.</small></td></tr>`;
                 return;
             }
 
@@ -77,10 +79,6 @@
             });
         }
 
-        function formatarPreco(v) {
-            return `R$ ${v.toFixed(2).replace('.', ',')}`;
-        }
-
         function excluir(e) {
             if (!e.target.classList.contains('btn-excluir')) return;
             const id = e.target.dataset.id;
@@ -90,12 +88,26 @@
             renderizar();
         }
 
-        function processarDados(freshList) {
+        function processarDadosURL() {
+            const params = new URLSearchParams(window.location.search);
+            const data = params.get('data');
+            if (!data) return;
+
+            let snapshot;
+            try {
+                snapshot = JSON.parse(decodeURIComponent(data));
+            } catch (e) {
+                console.error("Erro ao ler dados da URL:", e);
+                return;
+            }
+
+            if (!Array.isArray(snapshot) || snapshot.length === 0) return;
+
             let lista = getProdutos();
-            const urlsNoCarrinho = new Set(freshList.map(p => p.url));
+            const urlsNoCarrinho = new Set(snapshot.map(p => p.url));
             let novos = 0, atualizados = 0;
 
-            freshList.forEach(fresh => {
+            snapshot.forEach(fresh => {
                 const existente = lista.find(p => p.url === fresh.url);
                 if (existente) {
                     if (existente.precoAtual !== fresh.price) {
@@ -124,55 +136,30 @@
             salvarProdutos(lista);
             renderizar();
 
-            if (novos > 0 || atualizados > 0) {
-                const h1 = document.querySelector('h1');
+            // Feedback
+            const h1 = document.querySelector('h1');
+            if (h1 && (novos > 0 || atualizados > 0)) {
                 const orig = h1.textContent;
                 h1.textContent = `Atualizado! (+${novos}, ${atualizados})`;
                 h1.style.color = '#28a745';
                 setTimeout(() => { h1.textContent = orig; h1.style.color = ''; }, 2000);
             }
 
-            // Limpa dados temporários
-            localStorage.removeItem(CHAVE_DADOS);
-            localStorage.removeItem(CHAVE_ATUALIZACAO);
+            // Limpa URL
+            history.replaceState({}, '', window.location.pathname);
         }
 
-        // ESCUTA ATUALIZAÇÃO
-        function verificarAtualizacao() {
-            const dados = localStorage.getItem(CHAVE_DADOS);
-            if (dados) {
-                try {
-                    const parsed = JSON.parse(dados);
-                    processarDados(parsed);
-                } catch (e) {
-                    console.error("Erro ao processar dados:", e);
-                }
-            }
-        }
-
-        // Polling a cada 1s
-        setInterval(verificarAtualizacao, 1000);
-
-        // BOTÃO ATUALIZAR
+        // Botão atualizar
         document.getElementById('btn-atualizar').addEventListener('click', () => {
-            const sessionId = Date.now();
-            localStorage.setItem(CHAVE_ATUALIZACAO, sessionId);
-            const url = `https://shopee.com.br/cart`;
-            const win = window.open(url, '_blank');
-            if (!win) {
-                alert("Popup bloqueado! Permita popups para shopee.com.br");
-            } else {
-                setTimeout(() => {
-                    localStorage.removeItem(CHAVE_ATUALIZACAO);
-                }, 30000); // Expira em 30s
-            }
+            location.reload();
         });
 
         // Inicialização
         window.addEventListener('load', () => {
             document.getElementById('lista-produtos').addEventListener('click', excluir);
             renderizar();
-            verificarAtualizacao();
+            processarDadosURL();
+            console.log("Manager v7.0 carregado. Dados lidos da URL.");
         });
     </script>
 </body>
