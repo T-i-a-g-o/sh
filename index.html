@@ -43,6 +43,14 @@
     </div>
 
     <script>
+
+        document.getElementById('btn-limpar').addEventListener('click', () => {
+                if (confirm("Tem certeza que quer limpar todos os produtos?")) {
+                    localStorage.removeItem(CHAVE_PRODUTOS);
+                    renderizar();
+                }
+        });
+        
         const CHAVE_PRODUTOS = "shopee_favoritos";
 
         function getProdutos() {
@@ -140,13 +148,7 @@
             salvarProdutos(lista);
             renderizar();
 
-            document.getElementById('btn-limpar').addEventListener('click', () => {
-                if (confirm("Tem certeza que quer limpar todos os produtos?")) {
-                    localStorage.removeItem(CHAVE_PRODUTOS);
-                    renderizar();
-                }
-            });
-
+            
             // Feedback
             const h1 = document.querySelector('h1');
             if (h1 && (novos > 0 || atualizados > 0)) {
