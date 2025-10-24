@@ -70,18 +70,29 @@
             const lista = getProdutos();
             const tbody = document.getElementById('lista-produtos');
             tbody.innerHTML = '';
-
+        
             if (lista.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">Nenhum produto salvo.<br><small>Salve o carrinho na Shopee para começar.</small></td></tr>`;
                 return;
             }
-
+        
             lista.forEach(p => {
                 const tr = document.createElement('tr');
                 tr.className = 'border-b hover:bg-gray-50';
+        
+                // Define cor do preço atual
+                let precoAtualClasse = 'font-bold';
+                if (p.precoAtual === p.menorPreco) {
+                    precoAtualClasse += ' text-green-600';
+                } else if (p.precoAtual === p.maiorPreco) {
+                    precoAtualClasse += ' text-red-600';
+                } else {
+                    precoAtualClasse += ' text-gray-900';
+                }
+        
                 tr.innerHTML = `
                     <td class="px-6 py-3"><a href="${p.url}" target="_blank" class="text-blue-600 hover:underline">${p.nome}</a></td>
-                    <td class="px-6 py-3 font-bold">${formatarPreco(p.precoAtual)}</td>
+                    <td class="px-6 py-3 ${precoAtualClasse}">${formatarPreco(p.precoAtual)}</td>
                     <td class="px-6 py-3">${p.ultimoPreco ? formatarPreco(p.ultimoPreco) : '-'}</td>
                     <td class="px-6 py-3 text-green-600">${formatarPreco(p.menorPreco)}</td>
                     <td class="px-6 py-3 text-red-600">${formatarPreco(p.maiorPreco)}</td>
