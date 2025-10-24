@@ -40,8 +40,8 @@
 
     <script>
         const CHAVE_PRODUTOS = "shopee_favoritos";
-        let updateWindow = null;
-        const SESSION_ID = Date.now() + Math.random();
+        const CHAVE_ATUALIZACAO = "shopee_update_request";
+        const CHAVE_DADOS = "shopee_cart_data";
 
         function getProdutos() {
             const data = localStorage.getItem(CHAVE_PRODUTOS);
@@ -131,23 +131,40 @@
                 h1.style.color = '#28a745';
                 setTimeout(() => { h1.textContent = orig; h1.style.color = ''; }, 2000);
             }
+
+            // Limpa dados temporários
+            localStorage.removeItem(CHAVE_DADOS);
+            localStorage.removeItem(CHAVE_ATUALIZACAO);
         }
 
-        // ESCUTA MENSAGENS DO CARRINHO
-        window.addEventListener('message', (event) => {
-            if (event.data.type === 'SHOPEE_CART_DATA' && event.data.sessionId === SESSION_ID) {
-                console.log("Dados recebidos do carrinho!", event.data.data);
-                processarDados(event.data.data);
-                if (updateWindow) updateWindow.close();
+        // ESCUTA ATUALIZAÇÃO
+        function verificarAtualizacao() {
+            const dados = localStorage.getItem(CHAVE_DADOS);
+            if (dados) {
+                try {
+                    const parsed = JSON.parse(dados);
+                    processarDados(parsed);
+                } catch (e) {
+                    console.error("Erro ao processar dados:", e);
+                }
             }
-        });
+        }
+
+        // Polling a cada 1s
+        setInterval(verificarAtualizacao, 1000);
 
         // BOTÃO ATUALIZAR
         document.getElementById('btn-atualizar').addEventListener('click', () => {
-            const url = `https://shopee.com.br/cart?manager_session=${SESSION_ID}`;
-            updateWindow = window.open(url, '_blank');
-            if (!updateWindow) {
+            const sessionId = Date.now();
+            localStorage.setItem(CHAVE_ATUALIZACAO, sessionId);
+            const url = `https://shopee.com.br/cart`;
+            const win = window.open(url, '_blank');
+            if (!win) {
                 alert("Popup bloqueado! Permita popups para shopee.com.br");
+            } else {
+                setTimeout(() => {
+                    localStorage.removeItem(CHAVE_ATUALIZACAO);
+                }, 30000); // Expira em 30s
             }
         });
 
@@ -155,6 +172,7 @@
         window.addEventListener('load', () => {
             document.getElementById('lista-produtos').addEventListener('click', excluir);
             renderizar();
+            verificarAtualizacao();
         });
     </script>
 </body>
